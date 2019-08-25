@@ -4,6 +4,7 @@ Role Name
 The Role create CloutWatch alarms for different AWS services. At the moment, the following services are supported:
 
 * EC2
+* Elasticache
 * RDS
 * ELB
 
@@ -41,7 +42,7 @@ Including an example of how to use your role (for instance, with variables passe
     name: ansible-cloudwatch-alarm
   vars:
     aws_service: EC2
-    aws_region: "{{ aws_mobility_region }}"
+    aws_region: "{{ aws_region }}"
     sns_topic: "{{ project_name }}_{{ environment_env }}_{{ aws_service }}_alarms"
     minDelayTarget: 2
     maxDelayTarget: 4
@@ -69,4 +70,4 @@ Including an example of how to use your role (for instance, with variables passe
 Author Information
 ------------------
 
-[Agustín García Flores](https://www.linkedin.com/in/agust%C3%ADn-garc%C3%ADa-flores-bb9aa975/)
+[Agustín García Flores](https://www.linkedin.com/in/agustingarciaflores/)
