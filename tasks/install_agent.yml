@@ -1,0 +1,26 @@
+
+- name: Download CloudWatch agent rpm package
+  get_url:
+    url: https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+    dest: /tmp/amazon-cloudwatch-agent.rpm
+
+- name: Install rpm package
+  become: yes
+  yum:
+    name: /tmp/amazon-cloudwatch-agent.rpm
+    state: present
+
+- name: Copy configuration files to configution directory
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/aws/amazon-cloudwatch-agent/etc/"
+  with_fileglob: "files/*"
+
+- name: Copy JSON configuration file to bin directory
+  copy:
+    src: "files/amazon-cloudwatch-agent.json"
+    dest: "/opt/aws/amazon-cloudwatch-agent/bin/config.json"
+
+- name: Execute installer
+  become: yes
+  command: "/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s"

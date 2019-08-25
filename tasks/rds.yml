@@ -1,0 +1,29 @@
+---
+
+- name: Get instance ID
+  rds_instance_facts:
+    filters:
+      db-instance-id: "{{ rds_instances }}"
+  register: instances_list
+
+- name: Save list of instances
+  set_fact:
+    instances: "{{ instances_list.instances }}"
+
+- name: Create RDS alarm
+  ec2_metric_alarm:
+    state: present
+    region: "{{ aws_region }}"
+    name: "{{ item.db_instance_identifier }}-{{ metric }}"
+    metric: "{{ metric }}"
+    namespace: "{{ namespace }}"
+    statistic: "{{ statistic }}"
+    comparison: "{{ comparison }}"
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "{{ unit }}"
+    description: "{{ description }}"
+    dimensions: {'DBInstanceIdentifier':'{{ item.db_instance_identifier }}'}
+    alarm_actions: ["{{ sns.sns_arn }}"]
+  with_items: "{{ instances }}"

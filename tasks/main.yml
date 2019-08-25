@@ -1,0 +1,44 @@
+---
+
+- name: Create alarm SNS topic
+  sns_topic:
+    name: "{{ sns_topic }}"
+    state: present
+    display_name: "{{ sns_topic }}"
+    delivery_policy:
+      http:
+        defaultHealthyRetryPolicy:
+            minDelayTarget: "{{ minDelayTarget }}"
+            maxDelayTarget: "{{ maxDelayTarget }}"
+            numRetries: "{{ numRetries }}"
+            numMaxDelayRetries: "{{ numMaxDelayRetries }}"
+            backoffFunction: "{{ backoffFunction }}"
+        disableSubscriptionOverrides: "{{ disableSubscriptionOverrides }}"
+        defaultThrottlePolicy:
+            maxReceivesPerSecond: "{{ maxReceivesPerSecond }}"
+    subscriptions: "{{ subscriptions }}"
+  register: sns
+
+- name: Invoke EC2 specific tasks
+  import_tasks: ec2.yml
+  vars:
+    sns: "{{ sns }}"
+  when: aws_service == 'EC2'
+
+- name: Invoke RDS specific tasks
+  import_tasks: rds.yml
+  vars:
+    sns: "{{ sns }}"
+  when: aws_service == 'RDS'
+
+- name: Invoke ELB specific tasks
+  import_tasks: elb.yml
+  vars:
+    sns: "{{ sns }}"
+  when: aws_service == 'ELB'
+
+- name: Invoke ELB specific tasks
+  import_tasks: elasticache.yml
+  vars:
+    sns: "{{ sns }}"
+  when: aws_service == 'ElastiCache'

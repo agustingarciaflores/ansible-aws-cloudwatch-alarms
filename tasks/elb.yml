@@ -1,0 +1,28 @@
+---
+
+- name: Get instance ID
+  ec2_elb_facts:
+      names: "{{ elb_name }}"
+  register: elbs
+
+- name: Save list of instances
+  set_fact:
+    elbs_list: "{{ elbs.elbs }}"
+
+- name: Create EC 2 alarm
+  ec2_metric_alarm:
+    state: present
+    region: "{{ aws_region }}"
+    name: "{{ item.name }}-{{ metric }}"
+    metric: "{{ metric }}"
+    namespace: "{{ namespace }}"
+    statistic: "{{ statistic }}"
+    comparison: "{{ comparison }}"
+    threshold: "{{ threshold }}"
+    period: "{{ period }}"
+    evaluation_periods: "{{ evaluation_periods }}"
+    unit: "{{ unit }}"
+    description: "{{ description }}"
+    dimensions: {'LoadBalancerName':'{{ item.name }}'}
+    alarm_actions: ["{{ sns.sns_arn }}"]
+  with_items: "{{ elbs_list }}"

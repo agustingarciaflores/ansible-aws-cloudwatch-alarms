@@ -1,0 +1,43 @@
+[agent]
+  collection_jitter = "0s"
+  debug = false
+  flush_interval = "1s"
+  flush_jitter = "0s"
+  hostname = ""
+  interval = "60s"
+  logfile = "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+  metric_batch_size = 1000
+  metric_buffer_limit = 10000
+  omit_hostname = false
+  precision = ""
+  quiet = false
+  round_interval = false
+
+[inputs]
+
+  [[inputs.mem]]
+    fieldpass = ["used_percent"]
+    interval = "60s"
+
+  [[inputs.swap]]
+    fieldpass = ["used_percent"]
+    interval = "60s"
+
+[outputs]
+
+  [[outputs.cloudwatch]]
+    force_flush_interval = "60s"
+    namespace = "CWAgent"
+    region = "eu-west-1"
+    tagexclude = ["host"]
+    [outputs.cloudwatch.tagdrop]
+      log_group_name = ["*"]
+
+[processors]
+
+  [[processors.ec2tagger]]
+    ec2_instance_tag_keys = ["aws:autoscaling:groupName"]
+    ec2_metadata_tags = ["ImageId", "InstanceId", "InstanceType"]
+    refresh_interval_seconds = "2147483647s"
+    [processors.ec2tagger.tagdrop]
+      log_group_name = ["*"]
